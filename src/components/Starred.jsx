@@ -15,7 +15,7 @@ const Starred = ({viewTrailer}) => {
     <div className="starred" data-testid="starred">
       {starred.starredMovies.length > 0 && (<div data-testid="starred-movies" className="starred-movies">
         <h6 className="header">Starred movies</h6>
-        <div className="row">
+        <div className="row--25-25-25-25 row--50-50-on-medium">
         {starred.starredMovies.map((movie) => (
           <Movie 
             movie={movie} 

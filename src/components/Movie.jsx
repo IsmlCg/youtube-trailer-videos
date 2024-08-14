@@ -22,7 +22,7 @@ const Movie = ({ movie, viewTrailer, closeCard }) => {
     return (
         <div className="wrapper col">
         <div className="card" onClick={(e) => e.currentTarget.classList.add('opened')} >
-            <div className="card-body text-center">
+            <div className="card-body text-center pb-3 m-3">
                 <div className="overlay" />
                 <div className="info_panel">
                     <div className="overview">{movie.overview}</div>
