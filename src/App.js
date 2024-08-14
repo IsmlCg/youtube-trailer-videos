@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux'
 import 'reactjs-popup/dist/index.css'
-import { fetchMovies } from './data/moviesSlice'
+import { fetchMovies,clearMovies  } from './data/moviesSlice'
 import { ENDPOINT_SEARCH, ENDPOINT_DISCOVER, ENDPOINT, API_KEY } from './constants'
 import Header from './components/Header'
 import Movies from './components/Movies'
@@ -10,12 +10,17 @@ import Starred from './components/Starred'
 import WatchLater from './components/WatchLater'
 import YoutubePlayer from './components/YoutubePlayer'
 import AppModal from './components/AppModal'
+import useInfiniteScroll from './components/useInfiniteScroll'
 import './app.scss'
 
 const App = () => {
 
   const state = useSelector((state) => state)
-  const { movies } = state  
+  const { movies } = state
+  const {fetchStatus} = state.movies
+  const page = state.movies.movies.page
+  const total_pages = state.movies.movies.total_pages
+
   const dispatch = useDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchQuery = searchParams.get('search')
@@ -28,14 +33,28 @@ const App = () => {
   const closeCard = () => {}
 
   const getSearchResults = (query) => {
-    if (query !== '') {
-      dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+query))
-      setSearchParams(createSearchParams({ search: query }))
+    dispatch(clearMovies())
+    if (query !== '') {        
+        dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=`+query))
+        setSearchParams(createSearchParams({ search: query }))
     } else {
-      dispatch(fetchMovies(ENDPOINT_DISCOVER))
-      setSearchParams()
+        dispatch(fetchMovies(ENDPOINT_DISCOVER))
+        setSearchParams()
     }
   }
+
+  const fetchMoreMovies = () => {
+    if (fetchStatus === 'succeeded' && page < total_pages) {
+        
+        if (searchQuery) {
+            dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${searchQuery}&page=${Number(page+1)}`))
+        } else {
+            dispatch(fetchMovies( `${ENDPOINT_DISCOVER}&page=`+Number(page+1)))
+        }
+    }
+  }
+
+  const observer = useInfiniteScroll(fetchMoreMovies)
 
   const searchMovies = (query) => {
     navigate('/')
@@ -70,7 +89,9 @@ const App = () => {
   }
 
   useEffect(() => {
-    getMovies()
+        return () => {
+            getMovies()
+        }
   }, [])
 
   return (
@@ -94,6 +115,7 @@ const App = () => {
           <Route path="/watch-later" element={<WatchLater viewTrailer={viewTrailer} />} />
           <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />
         </Routes>
+        <div ref={observer} />
       </div>
     </div>
   )
