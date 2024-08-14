@@ -26,9 +26,13 @@ const App = () => {
   const searchQuery = searchParams.get('search')
   const [videoKey, setVideoKey] = useState()
   const [isOpen, setOpen] = useState(false)
+  const [noTrailerMessage, setNoTrailerMessage] = useState(false)
   const navigate = useNavigate()
   
-  const closeModal = () => {setOpen(false)}
+  const closeModal = () => {
+    setNoTrailerMessage(false)
+    setOpen(false)
+  }
   const openModal = () => {setOpen(true)}
   const closeCard = () => {}
 
@@ -78,6 +82,7 @@ const App = () => {
 
     setVideoKey(null)
     setOpen(false)
+    setNoTrailerMessage(false)
     const videoData = await fetch(URL)
       .then((response) => response.json())
 
@@ -85,6 +90,8 @@ const App = () => {
       const trailer = videoData.videos.results.find(vid => vid.type === 'Trailer')
       setVideoKey(trailer ? trailer.key : videoData.videos.results[0].key)
       setOpen(true)
+    }else{
+      setNoTrailerMessage(true)
     }
   }
 
@@ -106,7 +113,7 @@ const App = () => {
               </div>
           </AppModal>
         ) : (
-          <AppModal isOpen={!isOpen}  onRequestClose = {openModal} title="no trailer available. Try another movie "/>
+          <AppModal isOpen={noTrailerMessage}  onRequestClose = {closeModal} title="no trailer available. Try another movie "/>
         )}
 
         <Routes>
