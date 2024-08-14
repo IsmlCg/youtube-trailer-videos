@@ -8,7 +8,8 @@ import Header from './components/Header'
 import Movies from './components/Movies'
 import Starred from './components/Starred'
 import WatchLater from './components/WatchLater'
-import YouTubePlayer from './components/YoutubePlayer'
+import YoutubePlayer from './components/YoutubePlayer'
+import AppModal from './components/AppModal'
 import './app.scss'
 
 const App = () => {
@@ -22,11 +23,9 @@ const App = () => {
   const [isOpen, setOpen] = useState(false)
   const navigate = useNavigate()
   
-  const closeModal = () => setOpen(false)
-  
-  const closeCard = () => {
-
-  }
+  const closeModal = () => {setOpen(false)}
+  const openModal = () => {setOpen(true)}
+  const closeCard = () => {}
 
   const getSearchResults = (query) => {
     if (query !== '') {
@@ -53,20 +52,20 @@ const App = () => {
 
   const viewTrailer = (movie) => {
     getMovie(movie.id)
-    if (!videoKey) setOpen(true)
-    setOpen(true)
   }
 
   const getMovie = async (id) => {
     const URL = `${ENDPOINT}/movie/${id}?api_key=${API_KEY}&append_to_response=videos`
 
     setVideoKey(null)
+    setOpen(false)
     const videoData = await fetch(URL)
       .then((response) => response.json())
 
     if (videoData.videos && videoData.videos.results.length) {
       const trailer = videoData.videos.results.find(vid => vid.type === 'Trailer')
       setVideoKey(trailer ? trailer.key : videoData.videos.results[0].key)
+      setOpen(true)
     }
   }
 
@@ -80,11 +79,13 @@ const App = () => {
 
       <div className="container">
         {videoKey ? (
-          <YouTubePlayer
-            videoKey={videoKey}
-          />
+          <AppModal isOpen={isOpen} onRequestClose = {closeModal} title="Watch Trailer">
+              <div className="p-modal__body">
+                  <YoutubePlayer videoKey={videoKey} />
+              </div>
+          </AppModal>
         ) : (
-          <div style={{padding: "30px"}}><h6>no trailer available. Try another movie</h6></div>
+          <AppModal isOpen={!isOpen}  onRequestClose = {openModal} title="no trailer available. Try another movie "/>
         )}
 
         <Routes>
