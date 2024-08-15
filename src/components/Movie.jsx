@@ -25,7 +25,7 @@ const Movie = ({ movie, viewTrailer, closeCard }) => {
             <div className="card-body text-center pb-3 m-3">
                 <div className="overlay" />
                 <div className="info_panel">
-                    <div className="overview">{movie.overview}</div>
+                    <div className="overview overflow-auto">{movie.overview}</div>
                     <div className="year">{movie.release_date?.substring(0, 4)}</div>
                     {!starred.starredMovies.map(movie => movie.id).includes(movie.id) ? (
                         <span className="btn-star" data-testid="starred-link" onClick={() => 
